@@ -1,37 +1,60 @@
 import React from 'react';
-import logo from '../../assets/logo/logo.png'; // Replace with your logo's actual file path
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import logo from '../../assets/logo/logo_black.png'; // Replace with your logo's actual file path
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleScroll = (sectionId) => {
+    navigate('/'); // Ensure we navigate to the LandingPage
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100); // Allow a brief delay to ensure navigation occurs before scrolling
+  };
+
   return (
-    <nav className="bg-gray-100 py-4 sticky top-0 z-50 px-11">
+    <nav className="bg-white py-4 sticky top-0 z-50 px-11 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <a href="/" className="flex items-center">
+        <Link to="/" className="flex items-center">
           <img src={logo} alt="Learn Arabic Logo" className="h-10" />
-        </a>
+        </Link>
 
         {/* Navigation Links */}
         <ul className="flex space-x-6 text-gray-600">
           <li>
-            <a href="#home" className="hover:text-teal-500 transition">
+            <Link to="/" className="hover:text-teal-500 transition">
               Home
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="#services" className="hover:text-teal-500 transition">
+            <button
+              onClick={() => handleScroll('services')}
+              className="hover:text-teal-500 transition"
+            >
               Our Services
-            </a>
+            </button>
           </li>
           <li>
-            <a href="#about" className="hover:text-teal-500 transition">
+            <button
+              onClick={() => handleScroll('about')}
+              className="hover:text-teal-500 transition"
+            >
               About Us
-            </a>
+            </button>
           </li>
           <li>
-            <a href="#contact" className="hover:text-teal-500 transition">
-              Contact
-            </a>
+            <button
+              onClick={() => handleScroll('contact')}
+              className="hover:text-teal-500 transition"
+            >
+              Contact us
+            </button>
           </li>
+          
         </ul>
       </div>
     </nav>

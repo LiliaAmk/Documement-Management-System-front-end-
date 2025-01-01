@@ -1,9 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for routing
 import heroImage from '../../assets/images/hero.png';
 import dailyQuizIcon from '../../assets/icons/daily-quizzes-icon.png';
 import aiIcon from '../../assets/icons/ai-powered-icon.png';
 import learningIcon from '../../assets/icons/enjoy-learning-icon.png'; 
+
 const Hero = () => {
+  const navigate = useNavigate(); // Initialize useNavigate for navigation
+
+  const handleStartLearning = () => {
+    navigate('/generate-word'); // Navigate to the new page
+  };
+
   return (
     <section className="bg-teal-500 text-white relative overflow-hidden px-8">
       <div className="container mx-auto flex flex-col md:flex-row items-center py-16 relative">
@@ -18,6 +26,14 @@ const Hero = () => {
             IQraa is a platform that lets you learn Arabic while enjoying your
             time.
           </p>
+
+          {/* Start Learning Now Button */}
+          <button
+            onClick={handleStartLearning}
+            className="mt-6 bg-yellow-400 text-teal-500 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-500 transition"
+          >
+            Start Learning Now
+          </button>
         </div>
 
         {/* Image and Floating Cards Section */}
