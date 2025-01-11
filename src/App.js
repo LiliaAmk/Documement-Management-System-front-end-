@@ -2,15 +2,15 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import GenerateWordPage from './pages/GenerateWordPage';
+import GenerateSentencePage from './pages/GenerateSentencePage';
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* LandingPage handles Services, About, and Contact */}
         <Route path="/*" element={<ScrollToSection />} />
-        {/* Keep GenerateWordPage as a separate route */}
         <Route path="/generate-word" element={<GenerateWordPage />} />
+        <Route path="/generate-sentence" element={<GenerateSentencePage />} />
       </Routes>
     </Router>
   );

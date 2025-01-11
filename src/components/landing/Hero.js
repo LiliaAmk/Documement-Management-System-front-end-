@@ -27,13 +27,13 @@ const Hero = () => {
             time.
           </p>
 
-          {/* Start Learning Now Button */}
+          {/* Start Learning Now Button 
           <button
             onClick={handleStartLearning}
             className="mt-6 bg-yellow-400 text-teal-500 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-500 transition"
           >
             Start Learning Now
-          </button>
+          </button>*/}
         </div>
 
         {/* Image and Floating Cards Section */}

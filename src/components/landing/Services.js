@@ -1,30 +1,41 @@
 import React from 'react';
 import quizIcon from '../../assets/icons/generate-article-icon.png'; 
 import wordIcon from '../../assets/icons/generate-article-icon.png';
-import articleIcon from '../../assets/icons/generate-article-icon.png';
+import sentenceIcon from '../../assets/icons/generate-article-icon.png';
 import aiTeacherIcon from '../../assets/icons/generate-article-icon.png';
+import { useNavigate } from 'react-router-dom';
 
 const Services = () => {
+  const navigate = useNavigate();
+
   const services = [
     {
-      icon: quizIcon,
-      title: 'Arabic Quizzes',
-      description: 'Enjoy fun and interactive quizzes that help you practice and improve your Arabic skills step by step.',
+      icon: sentenceIcon,
+      title: 'Generate a Sentence',
+      description: 'Generate a complete Arabic sentence with translations and examples to improve your learning.',
+      buttonText: 'Go to Generate Sentence',
+      onClick: () => navigate('/generate-sentence'),
     },
     {
       icon: wordIcon,
       title: 'New Arabic Word',
       description: 'Discover a new Arabic word every day, with easy explanations and examples to help you use it confidently.',
+      buttonText: 'Go to Generate Word',
+      onClick: () => navigate('/generate-word'),
     },
     {
-      icon: articleIcon,
-      title: 'Generate an acrticle',
-      description: 'Quickly create your own Arabic article on any topic you like, perfect for learning or sharing your thoughts.',
+      icon: quizIcon,
+      title: 'Arabic Quizzes',
+      description: 'Enjoy fun and interactive quizzes that help you practice and improve your Arabic skills step by step.',
+      buttonText: 'Coming Soon',
+      disabled: true,
     },
     {
       icon: aiTeacherIcon,
-      title: 'Chat with an AI teacher',
-      description: 'Talk to your own AI teacher to practice Arabic, ask questions, and get helpful tips anytime you need.Talk to your own AI teacher to practice Arabic, ask questions, and get helpful tips anytime you need.',
+      title: 'Chat with an AI Teacher',
+      description: 'Talk to your own AI teacher to practice Arabic, ask questions, and get helpful tips anytime you need.',
+      buttonText: 'Coming Soon',
+      disabled: true,
     },
   ];
 
@@ -56,6 +67,18 @@ const Services = () => {
               <h3 className="text-xl font-semibold text-gray-800">{service.title}</h3>
               {/* Description */}
               <p className="mt-4 text-gray-600">{service.description}</p>
+              {/* Button */}
+              <button
+                onClick={service.onClick}
+                className={`mt-6 px-4 py-2 text-sm font-medium rounded-lg shadow-md ${
+                  service.disabled
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-teal-500 text-white hover:bg-teal-600 transition'
+                }`}
+                disabled={service.disabled}
+              >
+                {service.buttonText}
+              </button>
             </div>
           ))}
         </div>

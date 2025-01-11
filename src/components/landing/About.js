@@ -6,8 +6,8 @@ const About = () => {
     {
       name: 'Maab Chaoui',
       title: '4th year ENSIA student',
-      additionalTitles: ['Title 2', 'Title 3'],
-      image: require('../../assets/images/about-us.png'), 
+      additionalTitles: ['Skill&Tell Scientific Club Co-founder and Former President', 'Title 3'],
+      image: require('../../assets/images/maab.jpg'), 
     },
     {
       name: 'Abdelhak Chellal',
