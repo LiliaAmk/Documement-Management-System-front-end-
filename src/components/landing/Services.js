@@ -27,8 +27,8 @@ const Services = () => {
       icon: quizIcon,
       title: 'Arabic Quizzes',
       description: 'Enjoy fun and interactive quizzes that help you practice and improve your Arabic skills step by step.',
-      buttonText: 'Coming Soon',
-      disabled: true,
+      buttonText: 'Try Quiz',
+      onClick: () => navigate('/arabic-quiz'),
     },
     {
       icon: aiTeacherIcon,
@@ -37,6 +37,48 @@ const Services = () => {
       buttonText: 'Coming Soon',
       disabled: true,
     },
+    {
+      icon: quizIcon,
+      title: 'Grammar Exercises',
+      description: 'Practice Arabic grammar with interactive exercises and immediate feedback.',
+      buttonText: 'Go to Grammar',
+      onClick: () => navigate('/grammar'),
+    },
+    {
+      icon: wordIcon,
+      title: 'Arabic Lexicon Quest',
+      description: 'Test your Arabic vocabulary knowledge with interactive word exploration and meaning guessing.',
+      buttonText: 'Play Word Game',
+      onClick: () => navigate('/word-game'),
+    },
+    {
+      icon: wordIcon,
+      title: 'Word Explorer',
+      description: 'Deep dive into Arabic words: discover roots, meanings, and usage across dialects.',
+      buttonText: 'Explore Words',
+      onClick: () => navigate('/word-explorer'),
+    },
+    {
+      icon: wordIcon,
+      title: 'Sentence Analyzer',
+      description: 'Analyze Arabic sentences for grammar, structure, and get detailed explanations.',
+      buttonText: 'Analyze Sentences',
+      onClick: () => navigate('/sentence-analyzer'),
+    },
+    {
+      icon: sentenceIcon,
+      title: 'Sentence Generation',
+      description: 'Generate Arabic sentences with detailed grammatical analysis and cultural context.',
+      buttonText: 'Generate Sentences',
+      onClick: () => navigate('/generate-sentences'),
+    },
+    {
+      icon: wordIcon,
+      title: 'Translation Analysis',
+      description: 'Get detailed analysis of translations between English and Arabic with word-by-word breakdown.',
+      buttonText: 'Analyze Translation',
+      onClick: () => navigate('/translation'),
+    }
   ];
 
   return (

@@ -3,6 +3,13 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import LandingPage from './pages/LandingPage';
 import GenerateWordPage from './pages/GenerateWordPage';
 import GenerateSentencePage from './pages/GenerateSentencePage';
+import QuizPage from './pages/QuizPage';  // Update import
+import GrammarPage from './pages/GrammarPage';  // New import
+import WordGamePage from './pages/WordGamePage';  // New import
+import WordExplorerPage from './pages/WordExplorerPage';  // Add this import
+import SentenceAnalyzerPage from './pages/SentenceAnalyzerPage';  // New import
+import SentenceGenerationPage from './pages/SentenceGenerationPage';  // Add this import
+import TranslationPage from './pages/TranslationPage';  // Add this import
 
 function App() {
   return (
@@ -11,6 +18,13 @@ function App() {
         <Route path="/*" element={<ScrollToSection />} />
         <Route path="/generate-word" element={<GenerateWordPage />} />
         <Route path="/generate-sentence" element={<GenerateSentencePage />} />
+        <Route path="/arabic-quiz" element={<QuizPage />} />  {/* Update route */}
+        <Route path="/grammar" element={<GrammarPage />} />  {/* New route */}
+        <Route path="/word-game" element={<WordGamePage />} />  {/* New route */}
+        <Route path="/word-explorer" element={<WordExplorerPage />} />
+        <Route path="/sentence-analyzer" element={<SentenceAnalyzerPage />} />  {/* New route */}
+        <Route path="/generate-sentences" element={<SentenceGenerationPage />} />  {/* New route */}
+        <Route path="/translation" element={<TranslationPage />} />  {/* New route */}
       </Routes>
     </Router>
   );
