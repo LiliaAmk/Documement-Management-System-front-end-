@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import GenerateWordPage from './pages/GenerateWordPage';
-import GenerateSentencePage from './pages/GenerateSentencePage';
+import GenerateDefinition from './pages/GenerateSentencePage';
 import QuizPage from './pages/QuizPage';  // Update import
 import GrammarPage from './pages/GrammarPage';  // New import
 import WordGamePage from './pages/WordGamePage';  // New import
@@ -17,7 +17,7 @@ function App() {
       <Routes>
         <Route path="/*" element={<ScrollToSection />} />
         <Route path="/generate-word" element={<GenerateWordPage />} />
-        <Route path="/generate-sentence" element={<GenerateSentencePage />} />
+        <Route path="/get-definition" element={<GenerateDefinition />} />
         <Route path="/arabic-quiz" element={<QuizPage />} />  {/* Update route */}
         <Route path="/grammar" element={<GrammarPage />} />  {/* New route */}
         <Route path="/word-game" element={<WordGamePage />} />  {/* New route */}

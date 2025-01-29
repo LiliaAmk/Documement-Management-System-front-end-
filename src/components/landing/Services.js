@@ -1,9 +1,9 @@
-import React from 'react';
-import quizIcon from '../../assets/icons/generate-article-icon.png'; 
-import wordIcon from '../../assets/icons/generate-article-icon.png';
-import sentenceIcon from '../../assets/icons/generate-article-icon.png';
-import aiTeacherIcon from '../../assets/icons/generate-article-icon.png';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import quizIcon from "../../assets/icons/generate-article-icon.png";
+import wordIcon from "../../assets/icons/generate-article-icon.png";
+import sentenceIcon from "../../assets/icons/generate-article-icon.png";
+import aiTeacherIcon from "../../assets/icons/generate-article-icon.png";
+import { useNavigate } from "react-router-dom";
 
 const Services = () => {
   const navigate = useNavigate();
@@ -11,74 +11,84 @@ const Services = () => {
   const services = [
     {
       icon: sentenceIcon,
-      title: 'Generate a Sentence',
-      description: 'Generate a complete Arabic sentence with translations and examples to improve your learning.',
-      buttonText: 'Go to Generate Sentence',
-      onClick: () => navigate('/generate-sentence'),
+      title: "Get Word Definition",
+      description:
+        "Enter an Arabic word to get its meaning, transliteration, and explanation to enhance your vocabulary.",
+      buttonText: "Get Definition",
+      onClick: () => navigate("/get-definition"),
     },
     {
       icon: wordIcon,
-      title: 'New Arabic Word',
-      description: 'Discover a new Arabic word every day, with easy explanations and examples to help you use it confidently.',
-      buttonText: 'Go to Generate Word',
-      onClick: () => navigate('/generate-word'),
+      title: "New Arabic Word",
+      description:
+        "Discover a new Arabic word every day, with easy explanations and examples to help you use it confidently.",
+      buttonText: "Go to Generate Word",
+      onClick: () => navigate("/generate-word"),
     },
     {
       icon: quizIcon,
-      title: 'Arabic Quizzes',
-      description: 'Enjoy fun and interactive quizzes that help you practice and improve your Arabic skills step by step.',
-      buttonText: 'Try Quiz',
-      onClick: () => navigate('/arabic-quiz'),
+      title: "Arabic Quizzes",
+      description:
+        "Enjoy fun and interactive quizzes that help you practice and improve your Arabic skills step by step.",
+      buttonText: "Try Quiz",
+      onClick: () => navigate("/arabic-quiz"),
     },
     {
       icon: aiTeacherIcon,
-      title: 'Chat with an AI Teacher',
-      description: 'Talk to your own AI teacher to practice Arabic, ask questions, and get helpful tips anytime you need.',
-      buttonText: 'Coming Soon',
+      title: "Chat with an AI Teacher",
+      description:
+        "Talk to your own AI teacher to practice Arabic, ask questions, and get helpful tips anytime you need.",
+      buttonText: "Coming Soon",
       disabled: true,
     },
     {
       icon: quizIcon,
-      title: 'Grammar Exercises',
-      description: 'Practice Arabic grammar with interactive exercises and immediate feedback.',
-      buttonText: 'Go to Grammar',
-      onClick: () => navigate('/grammar'),
+      title: "Grammar Exercises",
+      description:
+        "Practice Arabic grammar with interactive exercises and immediate feedback.",
+      buttonText: "Go to Grammar",
+      onClick: () => navigate("/grammar"),
     },
     {
       icon: wordIcon,
-      title: 'Arabic Lexicon Quest',
-      description: 'Test your Arabic vocabulary knowledge with interactive word exploration and meaning guessing.',
-      buttonText: 'Play Word Game',
-      onClick: () => navigate('/word-game'),
+      title: "Arabic Lexicon Quest",
+      description:
+        "Test your Arabic vocabulary knowledge with interactive word exploration and meaning guessing.",
+      buttonText: "Play Word Game",
+      onClick: () => navigate("/word-game"),
     },
     {
       icon: wordIcon,
-      title: 'Word Explorer',
-      description: 'Deep dive into Arabic words: discover roots, meanings, and usage across dialects.',
-      buttonText: 'Explore Words',
-      onClick: () => navigate('/word-explorer'),
+      title: "Word Explorer",
+      description:
+        "Deep dive into Arabic words: discover roots, meanings, and usage across dialects.",
+      buttonText: "Explore Words",
+      onClick: () => navigate("/word-explorer"),
     },
     {
       icon: wordIcon,
-      title: 'Sentence Analyzer',
-      description: 'Analyze Arabic sentences for grammar, structure, and get detailed explanations.',
-      buttonText: 'Analyze Sentences',
-      onClick: () => navigate('/sentence-analyzer'),
+      title: "Sentence Analyzer",
+      description:
+        "Analyze Arabic sentences for grammar, structure, and get detailed explanations.",
+      buttonText: "Analyze Sentences",
+      onClick: () => navigate("/sentence-analyzer"),
     },
     {
       icon: sentenceIcon,
-      title: 'Sentence Generation',
-      description: 'Generate Arabic sentences with detailed grammatical analysis and cultural context.',
-      buttonText: 'Generate Sentences',
-      onClick: () => navigate('/generate-sentences'),
+      title: "Sentence Generation",
+      description:
+        "Generate Arabic sentences with detailed grammatical analysis and cultural context.",
+      buttonText: "Generate Sentences",
+      onClick: () => navigate("/generate-sentences"),
     },
     {
       icon: wordIcon,
-      title: 'Translation Analysis',
-      description: 'Get detailed analysis of translations between English and Arabic with word-by-word breakdown.',
-      buttonText: 'Analyze Translation',
-      onClick: () => navigate('/translation'),
-    }
+      title: "Translation Analysis",
+      description:
+        "Get detailed analysis of translations between English and Arabic with word-by-word breakdown.",
+      buttonText: "Analyze Translation",
+      onClick: () => navigate("/translation"),
+    },
   ];
 
   return (
@@ -89,7 +99,8 @@ const Services = () => {
           Our <span className="text-teal-500">Services</span>
         </h2>
         <p className="mt-4 text-gray-600">
-          Discover daily quizzes, AI tools, and a structured way to learn Arabic.
+          Discover daily quizzes, AI tools, and a structured way to learn
+          Arabic.
         </p>
 
         {/* Services Grid */}
@@ -102,11 +113,17 @@ const Services = () => {
               {/* Icon */}
               <div className="flex justify-center mb-4">
                 <div className="h-12 w-12 bg-teal-500 rounded-full flex items-center justify-center">
-                  <img src={service.icon} alt={`${service.title} Icon`} className="h-6 w-6" />
+                  <img
+                    src={service.icon}
+                    alt={`${service.title} Icon`}
+                    className="h-6 w-6"
+                  />
                 </div>
               </div>
               {/* Title */}
-              <h3 className="text-xl font-semibold text-gray-800">{service.title}</h3>
+              <h3 className="text-xl font-semibold text-gray-800">
+                {service.title}
+              </h3>
               {/* Description */}
               <p className="mt-4 text-gray-600">{service.description}</p>
               {/* Button */}
@@ -114,8 +131,8 @@ const Services = () => {
                 onClick={service.onClick}
                 className={`mt-6 px-4 py-2 text-sm font-medium rounded-lg shadow-md ${
                   service.disabled
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-teal-500 text-white hover:bg-teal-600 transition'
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-teal-500 text-white hover:bg-teal-600 transition"
                 }`}
                 disabled={service.disabled}
               >
