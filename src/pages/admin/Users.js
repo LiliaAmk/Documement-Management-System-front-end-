@@ -1,45 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import axios from "../../api/axios";
+import axios from '../../api/axios';
+
 import {
   Layout, Button, Input, Table, Modal, Form, Typography, message, Select,
 } from 'antd';
-import {
-  PlusOutlined, SearchOutlined,
-} from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
 const { Option } = Select;
 
-const Users = () => {
+export default function Users() {
   const [searchText, setSearchText] = useState('');
   const [users, setUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [form] = Form.useForm();
-
-  const userApi = 'http://localhost:8080/users';
-  const deptApi = 'http://localhost:8080/departments';
-
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get(userApi);
-      setUsers(response.data);
-    } catch (error) {
-      message.error('Failed to load users');
-    }
-  };
-
-  const fetchDepartments = async () => {
-    try {
-      const response = await axios.get(deptApi);
-      setDepartments(response.data);
-    } catch (error) {
-      message.error('Failed to load departments');
-    }
-  };
 
   useEffect(() => {
     fetchUsers();
@@ -48,38 +26,64 @@ const Users = () => {
 
   useEffect(() => {
     setFilteredUsers(
-      users.filter((user) =>
-        user.fullname.toLowerCase().includes(searchText.toLowerCase())
-      )
+      users.filter(u => {
+        // guard against missing fullname
+        const name = u.fullname ?? '';
+        return name.toLowerCase().includes(searchText.toLowerCase());
+      })
     );
   }, [searchText, users]);
+
+  const fetchUsers = async () => {
+    try {
+      const { data } = await axios.get('/users');
+      setUsers(data);
+    } catch {
+      message.error('Failed to load users');
+    }
+  };
+
+  const fetchDepartments = async () => {
+    try {
+      const { data } = await axios.get('/departments');
+      setDepartments(data);
+    } catch {
+      message.error('Failed to load departments');
+    }
+  };
 
   const openCreateModal = () => {
     setEditingUser(null);
     form.resetFields();
-    setIsModalVisible(true);
+    setOpenModal(true);
   };
 
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
+      const payload = {
+        fullname: values.fullname,
+        email: values.email,
+        phonenum: values.phonenum,
+        role: values.role,
+        department: { id: values.departmentId },
+        password: values.password,
+      };
 
       if (editingUser) {
-        await axios.put(`${userApi}/${editingUser.id}`, values);
+        await axios.put(`/users/${editingUser.id}`, payload);
         message.success('User updated');
       } else {
-        await axios.post(userApi, values);
+        await axios.post('/users', payload);
         message.success('User created');
       }
 
-      setIsModalVisible(false);
+      setOpenModal(false);
       fetchUsers();
-    } catch (error) {
+    } catch {
       message.error('Failed to save user');
     }
   };
-
-  const handleModalCancel = () => setIsModalVisible(false);
 
   const handleEdit = (record) => {
     setEditingUser(record);
@@ -87,56 +91,36 @@ const Users = () => {
       ...record,
       departmentId: record.department?.id,
     });
-    setIsModalVisible(true);
+    setOpenModal(true);
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${userApi}/${id}`);
+      await axios.delete(`/users/${id}`);
       message.success('User deleted');
       fetchUsers();
-    } catch (error) {
+    } catch {
       message.error('Failed to delete user');
     }
   };
 
   const columns = [
-    {
-      title: 'Full Name',
-      dataIndex: 'fullname',
-      key: 'fullname',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-    },
-    {
-      title: 'Phone Number',
-      dataIndex: 'phonenum',
-      key: 'phonenum',
-    },
-    {
-      title: 'Role',
-      dataIndex: 'role',
-      key: 'role',
-    },
+    { title: 'Full Name', dataIndex: 'fullname', key: 'fullname' },
+    { title: 'Email', dataIndex: 'email', key: 'email' },
+    { title: 'Phone', dataIndex: 'phonenum', key: 'phonenum' },
+    { title: 'Role', dataIndex: 'role', key: 'role' },
     {
       title: 'Department',
       key: 'department',
-      render: (_, record) => record.department?.name || '—',
+      render: (_, r) => r.department?.name || '—',
     },
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record) => (
+      render: (_, r) => (
         <>
-          <Button onClick={() => handleEdit(record)} type="link">
-            Edit
-          </Button>
-          <Button danger type="link" onClick={() => handleDelete(record.id)}>
-            Delete
-          </Button>
+          <Button type="link" onClick={() => handleEdit(r)}>Edit</Button>
+          <Button danger type="link" onClick={() => handleDelete(r.id)}>Delete</Button>
         </>
       ),
     },
@@ -144,31 +128,17 @@ const Users = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header
-        className="site-layout-background"
-        style={{
-          padding: '0 16px',
-          background: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Title level={4} style={{ margin: 0 }}>
-          User Management
-        </Title>
-
+      <Header style={{ background: '#fff', padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 16px' }}>
+        <Title level={4} style={{ margin: 0 }}>User Management</Title>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Input
-            placeholder="Search users..."
+            placeholder="Search users…"
             prefix={<SearchOutlined />}
-            style={{ width: 200, marginRight: 8 }}
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={e => setSearchText(e.target.value)}
+            style={{ width: 200, marginRight: 8 }}
           />
-          <Button icon={<PlusOutlined />} onClick={openCreateModal}>
-            Add User
-          </Button>
+          <Button icon={<PlusOutlined />} onClick={openCreateModal}>Add User</Button>
         </div>
       </Header>
 
@@ -176,63 +146,40 @@ const Users = () => {
         <Table
           columns={columns}
           dataSource={filteredUsers}
-          rowKey={(record) => record.id}
+          rowKey="id"
           bordered
         />
       </Content>
 
       <Modal
         title={editingUser ? 'Edit User' : 'Create User'}
-        visible={isModalVisible}
+        open={openModal}
         onOk={handleModalOk}
-        onCancel={handleModalCancel}
+        onCancel={() => setOpenModal(false)}
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            label="Full Name"
-            name="fullname"
-            rules={[{ required: true, message: 'Full name is required' }]}
-          >
+          <Form.Item name="fullname" label="Full Name" rules={[{ required: true }]}>  
             <Input />
           </Form.Item>
-
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[{ required: true, message: 'Email is required' }]}
-          >
+          <Form.Item name="email" label="Email" rules={[{ required: true }]}>  
             <Input type="email" />
           </Form.Item>
-
-          <Form.Item
-            label="Phone Number"
-            name="phonenum"
-            rules={[{ required: true, message: 'Phone number is required' }]}
-          >
+          <Form.Item name="password" label="Password" rules={[{ required: true }]}>
+            <Input.Password />
+          </Form.Item>
+          <Form.Item name="phonenum" label="Phone Number" rules={[{ required: true }]}>  
             <Input />
           </Form.Item>
-
-          <Form.Item
-            label="Role"
-            name="role"
-            rules={[{ required: true, message: 'Role is required' }]}
-          >
+          <Form.Item name="role" label="Role" rules={[{ required: true }]}>  
             <Select>
               <Option value="ROLE_ADMIN">Admin</Option>
               <Option value="ROLE_USER">User</Option>
             </Select>
           </Form.Item>
-
-          <Form.Item
-            label="Department"
-            name="departmentId"
-            rules={[{ required: true, message: 'Department is required' }]}
-          >
+          <Form.Item name="departmentId" label="Department" rules={[{ required: true }]}>  
             <Select placeholder="Select a department">
-              {departments.map((dept) => (
-                <Option key={dept.id} value={dept.id}>
-                  {dept.name}
-                </Option>
+              {departments.map(dept => (
+                <Option key={dept.id} value={dept.id}>{dept.name}</Option>
               ))}
             </Select>
           </Form.Item>
@@ -240,6 +187,5 @@ const Users = () => {
       </Modal>
     </Layout>
   );
-};
+}
 
-export default Users;

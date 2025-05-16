@@ -21,29 +21,26 @@ export default function SignIn() {
     e.preventDefault();
     setError("");
 
+    // clear any stale auth info
+    localStorage.removeItem("token");
+    localStorage.removeItem("userType");
+    localStorage.removeItem("userEmail");
+
     try {
       const response = await axios.post("http://localhost:8080/auth/login", formData);
       const token = response.data.token;
 
-      // Save token to localStorage
+      // Save token and user info
       localStorage.setItem("token", token);
-
-      // Decode token
       const decoded = jwtDecode(token);
-      console.log("Decoded token:", decoded);
-
-      const role = decoded.roles?.[0] || "user"; // fallback to 'user'
-
-      // Save role in localStorage
+      const role = decoded.roles?.[0] || "ROLE_USER";
       localStorage.setItem("userType", role);
-
-      // Optional: Save user email or ID if needed
       localStorage.setItem("userEmail", decoded.sub);
 
-      // Dispatch login success to Redux store
+      // Update Redux
       dispatch(loginSuccess({ token, user: decoded }));
 
-      // Navigate based on role
+      // Redirect
       if (role === "ROLE_ADMIN") {
         navigate("/admin/dashboard");
       } else {
@@ -51,6 +48,10 @@ export default function SignIn() {
       }
 
     } catch (err) {
+      // on failure, clear storage again
+      localStorage.removeItem("token");
+      localStorage.removeItem("userType");
+      localStorage.removeItem("userEmail");
       setError(err.response?.data?.message || "Authentication failed.");
     }
   };
@@ -58,7 +59,9 @@ export default function SignIn() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-purple-900">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
-        <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">Sign In</h2>
+        <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">
+          Sign In
+        </h2>
         <form onSubmit={handleSubmit}>
           {["email", "password"].map((field) => (
             <div className="mb-4" key={field}>
@@ -80,13 +83,18 @@ export default function SignIn() {
             Sign In
           </button>
         </form>
+
         <div className="text-center my-4 text-gray-500">or</div>
         <button className="flex items-center justify-center w-full border py-2 rounded-lg hover:bg-gray-100 transition">
           <FcGoogle className="text-xl mr-2" />
           Continue with Google
         </button>
+
         <p className="text-center text-gray-600 mt-4">
-          Don't have an account? <a href="/signup" className="text-purple-700">Sign up</a>
+          Don't have an account?{" "}
+          <a href="/signup" className="text-purple-700">
+            Sign up
+          </a>
         </p>
       </div>
     </div>

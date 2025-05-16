@@ -10,6 +10,7 @@ import {
   Form,
   Typography,
   message,
+  Popconfirm,
 } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 
@@ -24,7 +25,7 @@ export default function Categories() {
   const [editingCategory, setEditingCategory] = useState(null);
   const [form] = Form.useForm();
 
-  // 1. Fetch
+  // 1. Fetch categories
   const fetchCategories = async () => {
     try {
       const res = await axios.get("/categories");
@@ -38,7 +39,7 @@ export default function Categories() {
     fetchCategories();
   }, []);
 
-  // 2. Search filter
+  // 2. Filter by search text
   useEffect(() => {
     setFilteredCategories(
       categories.filter((cat) =>
@@ -47,28 +48,26 @@ export default function Categories() {
     );
   }, [searchText, categories]);
 
-  // 3. Open modal
+  // 3. Open modal (create or edit)
   const openCreateModal = () => {
     setEditingCategory(null);
     form.resetFields();
     setIsModalVisible(true);
   };
 
-  // 4. Create or Update
+  // 4. Handle create or update
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
-
       if (editingCategory) {
-        // PUT to /categories/:id
+        // Update
         await axios.put(`/categories/${editingCategory.id}`, values);
         message.success("Category updated");
       } else {
-        // POST to /categories
+        // Create
         await axios.post("/categories", values);
         message.success("Category created");
       }
-
       setIsModalVisible(false);
       fetchCategories();
     } catch {
@@ -78,14 +77,14 @@ export default function Categories() {
 
   const handleModalCancel = () => setIsModalVisible(false);
 
-  // 5. Populate for Edit
+  // 5. Populate form for editing
   const handleEdit = (record) => {
     setEditingCategory(record);
     form.setFieldsValue(record);
     setIsModalVisible(true);
   };
 
-  // 6. Delete
+  // 6. Delete with confirmation
   const handleDelete = async (id) => {
     try {
       await axios.delete(`/categories/${id}`);
@@ -97,7 +96,11 @@ export default function Categories() {
   };
 
   const columns = [
-    { title: "Category Name", dataIndex: "name", key: "name" },
+    {
+      title: "Category Name",
+      dataIndex: "name",
+      key: "name",
+    },
     {
       title: "Actions",
       key: "actions",
@@ -106,13 +109,16 @@ export default function Categories() {
           <Button type="link" onClick={() => handleEdit(record)}>
             Edit
           </Button>
-          <Button
-            danger
-            type="link"
-            onClick={() => handleDelete(record.id)}
+          <Popconfirm
+            title="Are you sure you want to delete this category?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Yes"
+            cancelText="No"
           >
-            Delete
-          </Button>
+            <Button danger type="link">
+              Delete
+            </Button>
+          </Popconfirm>
         </>
       ),
     },
@@ -157,7 +163,7 @@ export default function Categories() {
 
       <Modal
         title={editingCategory ? "Edit Category" : "Create Category"}
-        open={isModalVisible}          // <--- use `open` instead of `visible`
+        open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
       >
@@ -165,7 +171,9 @@ export default function Categories() {
           <Form.Item
             label="Category Name"
             name="name"
-            rules={[{ required: true, message: "Category name is required" }]}
+            rules={[
+              { required: true, message: "Category name is required" },
+            ]}
           >
             <Input />
           </Form.Item>
