@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Layout, Button, Input, Table, Modal, Form, Typography,
-} from 'antd';
-import {
-  PlusOutlined, SearchOutlined,
-} from '@ant-design/icons';
+// src/pages/admin/Departments.js
 
+import React, { useState, useEffect } from 'react';
+import api from '../../api/axios'; // Make sure the import path is correct!
+import {
+  Layout, Button, Input, Table, Modal, Form, Typography, message,
+} from 'antd';
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -18,47 +18,81 @@ const Departments = () => {
   const [editingDepartment, setEditingDepartment] = useState(null);
   const [form] = Form.useForm();
 
+  // Fetch all departments on mount
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
+
+  // Filter departments by search text
+  useEffect(() => {
+    setFilteredDepartments(
+      departments.filter((dep) =>
+        dep.name?.toLowerCase().includes(searchText.toLowerCase())
+      )
+    );
+  }, [searchText, departments]);
+
+  // Fetch departments from backend
+  const fetchDepartments = async () => {
+    try {
+      const { data } = await api.get('/departments');
+      setDepartments(data);
+    } catch (err) {
+      message.error('Failed to load departments');
+      console.error('Fetch error:', err);
+    }
+  };
+
+  // Open modal to create a department
   const openCreateModal = () => {
     setEditingDepartment(null);
     form.resetFields();
     setIsModalVisible(true);
   };
 
-  const handleModalOk = () => {
-    form.validateFields().then((values) => {
+  // Create (POST) or edit department
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
       if (editingDepartment) {
-        const updated = departments.map((dep) =>
-          dep.id === editingDepartment.id ? { ...dep, ...values } : dep
-        );
-        setDepartments(updated);
+        // For now, skip editing (implement if needed)
+        message.info('Editing not implemented yet.');
       } else {
-        const newDepartment = { id: Date.now(), ...values };
-        setDepartments([...departments, newDepartment]);
+        // Create department via backend
+        const { data } = await api.post('/departments', { name: values.name });
+        setDepartments([...departments, data]);
+        message.success('Department created');
       }
       setIsModalVisible(false);
-    });
+    } catch (err) {
+      message.error('Failed to save department');
+      console.error('Save error:', err);
+    }
   };
 
+  // Close modal
   const handleModalCancel = () => setIsModalVisible(false);
 
+  // Prepare editing mode (not yet implemented)
   const handleEdit = (record) => {
     setEditingDepartment(record);
     form.setFieldsValue(record);
     setIsModalVisible(true);
   };
 
-  const handleDelete = (id) => {
-    setDepartments(departments.filter((dep) => dep.id !== id));
+  // Delete department via backend
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/departments/${id}`);
+      setDepartments(departments.filter((dep) => dep.id !== id));
+      message.success('Department deleted');
+    } catch (err) {
+      message.error('Failed to delete department');
+      console.error('Delete error:', err);
+    }
   };
 
-  useEffect(() => {
-    setFilteredDepartments(
-      departments.filter((dep) =>
-        dep.name.toLowerCase().includes(searchText.toLowerCase())
-      )
-    );
-  }, [searchText, departments]);
-
+  // Table columns
   const columns = [
     {
       title: 'Department Name',
@@ -70,9 +104,9 @@ const Departments = () => {
       key: 'actions',
       render: (_, record) => (
         <>
-          <Button onClick={() => handleEdit(record)} type="link">
+          {/* <Button onClick={() => handleEdit(record)} type="link">
             Edit
-          </Button>
+          </Button> */}
           <Button danger type="link" onClick={() => handleDelete(record.id)}>
             Delete
           </Button>
@@ -96,7 +130,6 @@ const Departments = () => {
         <Title level={4} style={{ margin: 0 }}>
           Department Management
         </Title>
-
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Input
             placeholder="Search departments..."
@@ -122,9 +155,10 @@ const Departments = () => {
 
       <Modal
         title={editingDepartment ? 'Edit Department' : 'Create Department'}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
+        okText={editingDepartment ? 'Save' : 'Create'}
       >
         <Form form={form} layout="vertical">
           <Form.Item
