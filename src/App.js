@@ -1,49 +1,148 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import GenerateWordPage from './pages/GenerateWordPage';
-import GenerateDefinition from './pages/GenerateSentencePage';
-import QuizPage from './pages/QuizPage';  // Update import
-import GrammarPage from './pages/GrammarPage';  // New import
-import WordGamePage from './pages/WordGamePage';  // New import
-import WordExplorerPage from './pages/WordExplorerPage';  // Add this import
-import SentenceAnalyzerPage from './pages/SentenceAnalyzerPage';  // New import
-import SentenceGenerationPage from './pages/SentenceGenerationPage';  // Add this import
-import TranslationPage from './pages/TranslationPage';  // Add this import
+// src/App.js
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { jwtDecode } from "jwt-decode";
+import { loginSuccess, logout } from "./redux/authSlice";
 
-function App() {
+// Layout
+import DashboardLayout from "./layouts/DashboardLayout";
+
+// Pages
+import AllFiles from "./pages/common/AllFiles";
+import SignIn from "./pages/auth/SignIn";
+import SignUp from "./pages/auth/SignUp";
+import Profile from "./pages/common/Profile";
+import Dashboard from "./pages/admin/Dashboard";
+import UserDashboard from "./pages/user/UserDashboard";
+import Users from "./pages/admin/Users";
+import Categories from "./pages/admin/Categories";
+import Departments from "./pages/admin/Departments";
+
+// Route protection wrapper
+const RequireAuth = ({ children, adminOnly = false }) => {
+  const user = useSelector((state) => state.auth.user);
+
+  if (!user) return <Navigate to="/login" replace />;
+  if (adminOnly && !user.roles?.includes("ROLE_ADMIN"))
+    return <Navigate to="/user/dashboard" replace />;
+
+  return children;
+};
+
+const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+
+        if (decoded.exp * 1000 < Date.now()) {
+          localStorage.removeItem("token");
+          dispatch(logout());
+        } else {
+          dispatch(loginSuccess({ token, user: decoded }));
+        }
+      } catch (err) {
+        console.error("Invalid token", err);
+        localStorage.removeItem("token");
+        dispatch(logout());
+      }
+    }
+  }, [dispatch]);
+
   return (
     <Router>
       <Routes>
-        <Route path="/*" element={<ScrollToSection />} />
-        <Route path="/generate-word" element={<GenerateWordPage />} />
-        <Route path="/get-definition" element={<GenerateDefinition />} />
-        <Route path="/arabic-quiz" element={<QuizPage />} />  {/* Update route */}
-        <Route path="/grammar" element={<GrammarPage />} />  {/* New route */}
-        <Route path="/word-game" element={<WordGamePage />} />  {/* New route */}
-        <Route path="/word-explorer" element={<WordExplorerPage />} />
-        <Route path="/sentence-analyzer" element={<SentenceAnalyzerPage />} />  {/* New route */}
-        <Route path="/generate-sentences" element={<SentenceGenerationPage />} />  {/* New route */}
-        <Route path="/translation" element={<TranslationPage />} />  {/* New route */}
+        {/* Public Routes */}
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<SignIn />} />
+
+        {/* Protected Routes */}
+        <Route
+          element={
+            <RequireAuth>
+              <DashboardLayout />
+            </RequireAuth>
+          }
+        >
+          {/* Admin-specific */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <RequireAuth adminOnly={true}>
+                <Dashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <RequireAuth adminOnly={true}>
+                <Categories />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/departments"
+            element={
+              <RequireAuth adminOnly={true}>
+                <Departments />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <RequireAuth adminOnly={true}>
+                <Users />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/all-files"
+            element={
+              <RequireAuth adminOnly={true}>
+                <AllFiles />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <RequireAuth adminOnly={true}>
+                <Profile />
+              </RequireAuth>
+            }
+          />
+
+          {/* Regular user */}
+          <Route
+            path="/user/dashboard"
+            element={
+              <RequireAuth>
+                <UserDashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/files"
+            element={
+              <RequireAuth>
+                <AllFiles />
+              </RequireAuth>
+            }
+          />
+        </Route>
+
+        {/* Catch all */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );
-}
-
-// Component to handle scrolling to sections
-const ScrollToSection = () => {
-  React.useEffect(() => {
-    const currentPath = window.location.pathname;
-    const sectionId = currentPath.replace('/', ''); // Extract the section ID
-    if (sectionId && sectionId !== 'generate-word') {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  }, []);
-
-  return <LandingPage />;
 };
 
 export default App;
