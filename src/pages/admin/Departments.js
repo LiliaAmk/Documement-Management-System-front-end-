@@ -1,14 +1,13 @@
-// src/pages/admin/Departments.js
-
 import React, { useState, useEffect } from 'react';
-import api from '../../api/axios'; // Make sure the import path is correct!
+import api from '../../api/axios';
 import {
   Layout, Button, Input, Table, Modal, Form, Typography, message,
 } from 'antd';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
+const { confirm } = Modal;
 
 const Departments = () => {
   const [searchText, setSearchText] = useState('');
@@ -18,12 +17,7 @@ const Departments = () => {
   const [editingDepartment, setEditingDepartment] = useState(null);
   const [form] = Form.useForm();
 
-  // Fetch all departments on mount
-  useEffect(() => {
-    fetchDepartments();
-  }, []);
-
-  // Filter departments by search text
+  useEffect(() => { fetchDepartments(); }, []);
   useEffect(() => {
     setFilteredDepartments(
       departments.filter((dep) =>
@@ -32,33 +26,27 @@ const Departments = () => {
     );
   }, [searchText, departments]);
 
-  // Fetch departments from backend
   const fetchDepartments = async () => {
     try {
       const { data } = await api.get('/departments');
       setDepartments(data);
     } catch (err) {
       message.error('Failed to load departments');
-      console.error('Fetch error:', err);
     }
   };
 
-  // Open modal to create a department
   const openCreateModal = () => {
     setEditingDepartment(null);
     form.resetFields();
     setIsModalVisible(true);
   };
 
-  // Create (POST) or edit department
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
       if (editingDepartment) {
-        // For now, skip editing (implement if needed)
         message.info('Editing not implemented yet.');
       } else {
-        // Create department via backend
         const { data } = await api.post('/departments', { name: values.name });
         setDepartments([...departments, data]);
         message.success('Department created');
@@ -66,33 +54,39 @@ const Departments = () => {
       setIsModalVisible(false);
     } catch (err) {
       message.error('Failed to save department');
-      console.error('Save error:', err);
     }
   };
 
-  // Close modal
   const handleModalCancel = () => setIsModalVisible(false);
 
-  // Prepare editing mode (not yet implemented)
-  const handleEdit = (record) => {
-    setEditingDepartment(record);
-    form.setFieldsValue(record);
-    setIsModalVisible(true);
+  // ——— Confirmation before deletion
+  const showDeleteConfirm = (id) => {
+    confirm({
+      title: 'Are you sure you want to delete this department?',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Deleting a department is permanent. All related documents, users, or references may be affected!',
+      okText: 'Yes, Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk() {
+        deleteDepartment(id);
+      },
+      onCancel() { /* do nothing */ },
+    });
   };
 
-  // Delete department via backend
-  const handleDelete = async (id) => {
+  // Real deletion logic
+  const deleteDepartment = async (id) => {
     try {
       await api.delete(`/departments/${id}`);
       setDepartments(departments.filter((dep) => dep.id !== id));
       message.success('Department deleted');
     } catch (err) {
-      message.error('Failed to delete department');
-      console.error('Delete error:', err);
+      // You can add more detailed error messages depending on err.response
+      message.error('Failed to delete department. Make sure it is not linked to documents.');
     }
   };
 
-  // Table columns
   const columns = [
     {
       title: 'Department Name',
@@ -103,14 +97,9 @@ const Departments = () => {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
-        <>
-          {/* <Button onClick={() => handleEdit(record)} type="link">
-            Edit
-          </Button> */}
-          <Button danger type="link" onClick={() => handleDelete(record.id)}>
-            Delete
-          </Button>
-        </>
+        <Button danger type="link" onClick={() => showDeleteConfirm(record.id)}>
+          Delete
+        </Button>
       ),
     },
   ];
