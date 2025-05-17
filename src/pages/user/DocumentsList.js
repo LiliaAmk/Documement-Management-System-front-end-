@@ -66,15 +66,27 @@ const DocumentsList = () => {
   key: "actions",
   render: (_, record) => (
     <>
-      <Button type="link" onClick={() => window.open(record.downloadUrl, "_blank")}>
+      <Button
+        type="link"
+        onClick={() => window.open(record.downloadUrl, "_blank")}
+      >
         Download
       </Button>
-      <Button type="link" danger onClick={() => handleDelete(record.id)}>
-        Delete
-      </Button>
+      {record.userEmail === user.email && (
+        <>
+          <Button
+            danger
+            type="link"
+            onClick={() => handleDelete(record.id)}
+          >
+            Delete
+          </Button>
+        </>
+      )}
     </>
   ),
 }
+
 
   ];
 

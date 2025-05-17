@@ -48,8 +48,12 @@ const DocumentUpload = () => {
     };
 
     const formData = new FormData();
-    formData.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-    formData.append("file", file);
+formData.append("title", values.title);
+formData.append("departmentId", values.departmentId);
+formData.append("categoryId", values.categoryId);
+formData.append("userEmail", user.email);
+formData.append("file", file);
+
 
     try {
       await api.post("/documents", formData, {

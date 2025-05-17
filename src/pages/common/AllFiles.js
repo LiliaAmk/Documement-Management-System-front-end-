@@ -1,207 +1,149 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import {
-  Layout, Button, Input, Table, Modal, Form, Typography, message,
-} from 'antd';
-import {
-  PlusOutlined, SearchOutlined, FileOutlined,
-} from '@ant-design/icons';
+import React, { useEffect, useState } from "react";
+import api from "../../api/axios";
+import { Table, Button, Tag, message, Typography, Input, Modal } from "antd";
+import { useNavigate } from "react-router-dom";
+import { SearchOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
-const { Header, Content } = Layout;
 const { Title } = Typography;
+const { confirm } = Modal;
 
 const AllFiles = () => {
-  const [searchText, setSearchText] = useState('');
-  const [files, setFiles] = useState([]);
-  const [filteredFiles, setFilteredFiles] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingFile, setEditingFile] = useState(null);
-  const [form] = Form.useForm();
+  const [documents, setDocuments] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const apiBaseUrl = 'http://localhost:8080/files';
-
-  const fetchFiles = async () => {
-    try {
-      const response = await axios.get(apiBaseUrl);
-      setFiles(response.data);
-    } catch (error) {
-      message.error('Failed to load files');
-    }
-  };
-
+  // Fetch all departments & categories for names
   useEffect(() => {
-    fetchFiles();
+    api.get("/departments").then(res => setDepartments(res.data));
+    api.get("/categories").then(res => setCategories(res.data));
   }, []);
 
+  // Fetch ALL documents (admin view)
   useEffect(() => {
-    setFilteredFiles(
-      files.filter((file) =>
-        file.name.toLowerCase().includes(searchText.toLowerCase())
-      )
-    );
-  }, [searchText, files]);
+    setLoading(true);
+    api.get("/documents/all")
+      .then(res => setDocuments(res.data))
+      .catch(() => message.error("Failed to fetch all documents"))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const openCreateModal = () => {
-    setEditingFile(null);
-    form.resetFields();
-    setIsModalVisible(true);
+  const getDepartmentName = (id) => {
+    const dept = departments.find(d => d.id === id);
+    return dept ? dept.name : id;
   };
 
-  const handleModalOk = async () => {
-    try {
-      const values = await form.validateFields();
-      if (editingFile) {
-        await axios.put(`${apiBaseUrl}/${editingFile.id}`, values);
-        message.success('File updated');
-      } else {
-        await axios.post(apiBaseUrl, values);
-        message.success('File added');
-      }
-      setIsModalVisible(false);
-      fetchFiles();
-    } catch (error) {
-      message.error('Failed to save file');
-    }
+  const getCategoryName = (id) => {
+    const cat = categories.find(c => c.id === id);
+    return cat ? cat.name : id;
   };
 
-  const handleModalCancel = () => setIsModalVisible(false);
-
-  const handleEdit = (record) => {
-    setEditingFile(record);
-    form.setFieldsValue(record);
-    setIsModalVisible(true);
+  // --- Delete with confirmation
+  const showDeleteConfirm = (id) => {
+    confirm({
+      title: "Are you sure you want to delete this file?",
+      icon: <ExclamationCircleOutlined />,
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        handleDelete(id);
+      },
+    });
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${apiBaseUrl}/${id}`);
-      message.success('File deleted');
-      fetchFiles();
-    } catch (error) {
-      message.error('Failed to delete file');
+      await api.delete(`/documents/${id}`);
+      setDocuments((docs) => docs.filter((doc) => doc.id !== id));
+      message.success("File deleted");
+    } catch (err) {
+      message.error("Failed to delete file");
     }
   };
 
-  const openFile = (url) => {
-    window.open(url, '_blank');
+  // Optionally, for "Edit", redirect to edit page/modal
+  const handleEdit = (record) => {
+    navigate(`/edit-file/${record.id}`);
   };
 
+  // --- Filtering for search (optional, can enhance further)
+  const filteredDocs = documents.filter(
+    (doc) =>
+      doc.title?.toLowerCase().includes(searchText.toLowerCase()) ||
+      doc.translatedTitle?.toLowerCase().includes(searchText.toLowerCase()) ||
+      doc.userEmail?.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   const columns = [
+    { title: "Title", dataIndex: "title", key: "title" },
+    { title: "Translated Title", dataIndex: "translatedTitle", key: "translatedTitle" },
+      {
+    title: "Uploader",
+    dataIndex: "userEmail",
+    key: "userEmail",
+    render: (email) => email || "—",
+  },
     {
-      title: '',
-      key: 'open',
-      render: (_, record) => (
-        <Button
-          type="link"
-          icon={<FileOutlined />}
-          onClick={() => openFile(record.url)}
-        />
-      ),
+      title: "Department",
+      dataIndex: "departmentId",
+      key: "departmentId",
+      render: (id) => <Tag color="green">{getDepartmentName(id)}</Tag>,
     },
     {
-      title: 'File Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Category",
+      dataIndex: "categoryId",
+      key: "categoryId",
+      render: (id) => <Tag color="purple">{getCategoryName(id)}</Tag>,
     },
     {
-      title: 'Added By',
-      dataIndex: 'addedBy',
-      key: 'addedBy',
-    },
-    {
-      title: 'Department',
-      dataIndex: 'department',
-      key: 'department',
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (_, record) => (
         <>
-          <Button type="link" onClick={() => handleEdit(record)}>Edit</Button>
-          <Button danger type="link" onClick={() => handleDelete(record.id)}>Delete</Button>
+          <Button
+            type="link"
+            onClick={() => window.open(record.downloadUrl, "_blank")}
+          >
+            Download
+          </Button>
+          
+          <Button
+            danger
+            type="link"
+            onClick={() => showDeleteConfirm(record.id)}
+          >
+            Delete
+          </Button>
         </>
       ),
     },
   ];
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Header
-        className="site-layout-background"
-        style={{
-          padding: '0 16px',
-          background: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Title level={4} style={{ margin: 0 }}>
-          All Files
-        </Title>
-
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Input
-            placeholder="Search files..."
-            prefix={<SearchOutlined />}
-            style={{ width: 200, marginRight: 8 }}
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-          <Button icon={<PlusOutlined />} onClick={openCreateModal}>
-            Add File
-          </Button>
-        </div>
-      </Header>
-
-      <Content style={{ margin: '16px' }}>
-        <Table
-          columns={columns}
-          dataSource={filteredFiles}
-          rowKey={(record) => record.id}
-          bordered
+    <div>
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center"
+      }}>
+        <Title level={3}>All Documents (Admin)</Title>
+        <Input
+          placeholder="Search by title, translation, or email..."
+          prefix={<SearchOutlined />}
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+          style={{ width: 300 }}
         />
-      </Content>
-
-      <Modal
-        title={editingFile ? 'Edit File' : 'Add File'}
-        visible={isModalVisible}
-        onOk={handleModalOk}
-        onCancel={handleModalCancel}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="File Name"
-            name="name"
-            rules={[{ required: true, message: 'File name is required' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="URL"
-            name="url"
-            rules={[{ required: true, message: 'File URL is required' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Added By"
-            name="addedBy"
-            rules={[{ required: true, message: 'User is required' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Department"
-            name="department"
-            rules={[{ required: true, message: 'Department is required' }]}
-          >
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </Layout>
+      </div>
+      <Table
+        dataSource={filteredDocs}
+        columns={columns}
+        rowKey="id"
+        loading={loading}
+        pagination={{ pageSize: 8 }}
+      />
+    </div>
   );
 };
 

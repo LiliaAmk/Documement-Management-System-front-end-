@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {jwtDecode} from "jwt-decode"; // Use default import, not destructured
 
 const initialState = {
   isAuthenticated: false,
   token: null,
-  user: null, 
+  user: null,
 };
 
 const authSlice = createSlice({
@@ -11,9 +12,23 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     loginSuccess(state, action) {
+      const { token } = action.payload;
       state.isAuthenticated = true;
-      state.token = action.payload.token;
-      state.user = action.payload.user;
+      state.token = token;
+
+      // Decode token to extract email and roles (if available)
+      let user = null;
+      try {
+        const decoded = jwtDecode(token);
+        user = {
+          email: decoded.sub, // JWT "sub" usually stores the email
+          roles: decoded.roles || [],
+        };
+      } catch (err) {
+        // Handle decoding error gracefully
+        user = null;
+      }
+      state.user = user;
     },
     logout(state) {
       state.isAuthenticated = false;
