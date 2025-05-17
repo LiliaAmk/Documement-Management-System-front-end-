@@ -121,13 +121,10 @@ const App = () => {
 
           {/* Regular user */}
           <Route
-            path="/user/dashboard"
-            element={
-              <RequireAuth>
-                <UserDashboard />
-              </RequireAuth>
-            }
-          />
+  path="/user/dashboard"
+  element={<Navigate to="/files" replace />}
+/>
+
           <Route path="/files" element={<DocumentsList />} />
 <Route path="/upload" element={<DocumentUpload />} />
 
