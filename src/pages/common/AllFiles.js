@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { Table, Button, Tag, message, Typography, Input, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
-import { SearchOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { SearchOutlined, ExclamationCircleOutlined, ShareAltOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 const { confirm } = Modal;
@@ -13,6 +13,8 @@ const AllFiles = () => {
   const [categories, setCategories] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [shareModal, setShareModal] = useState({ open: false, docId: null });
+  const [shareEmail, setShareEmail] = useState("");
   const navigate = useNavigate();
 
   // Fetch all departments & categories for names
@@ -64,9 +66,25 @@ const AllFiles = () => {
     }
   };
 
-  // Optionally, for "Edit", redirect to edit page/modal
-  const handleEdit = (record) => {
-    navigate(`/edit-file/${record.id}`);
+  // Share logic
+  const openShareModal = (docId) => {
+    setShareModal({ open: true, docId });
+    setShareEmail("");
+  };
+
+  const handleShare = async () => {
+    if (!shareEmail) {
+      message.error("Please enter an email to share with");
+      return;
+    }
+    try {
+      await api.post(`/documents/${shareModal.docId}/share?email=${shareEmail}`);
+      message.success("Document shared successfully!");
+      setShareModal({ open: false, docId: null });
+      setShareEmail("");
+    } catch {
+      message.error("Failed to share document (check email exists)");
+    }
   };
 
   // --- Filtering for search (optional, can enhance further)
@@ -80,12 +98,12 @@ const AllFiles = () => {
   const columns = [
     { title: "Title", dataIndex: "title", key: "title" },
     { title: "Translated Title", dataIndex: "translatedTitle", key: "translatedTitle" },
-      {
-    title: "Uploader",
-    dataIndex: "userEmail",
-    key: "userEmail",
-    render: (email) => email || "—",
-  },
+    {
+      title: "Uploader",
+      dataIndex: "userEmail",
+      key: "userEmail",
+      render: (email) => email || "—",
+    },
     {
       title: "Department",
       dataIndex: "departmentId",
@@ -107,9 +125,15 @@ const AllFiles = () => {
             type="link"
             onClick={() => window.open(record.downloadUrl, "_blank")}
           >
-            Download
+            View & Download 
           </Button>
-          
+          <Button
+            icon={<ShareAltOutlined />}
+            type="link"
+            onClick={() => openShareModal(record.id)}
+          >
+            Share
+          </Button>
           <Button
             danger
             type="link"
@@ -151,6 +175,21 @@ const AllFiles = () => {
         loading={loading}
         pagination={{ pageSize: 8 }}
       />
+
+      {/* Share Modal */}
+      <Modal
+        title="Share Document"
+        open={shareModal.open}
+        onCancel={() => setShareModal({ open: false, docId: null })}
+        onOk={handleShare}
+        okText="Share"
+      >
+        <Input
+          placeholder="Enter user email to share with"
+          value={shareEmail}
+          onChange={e => setShareEmail(e.target.value)}
+        />
+      </Modal>
     </div>
   );
 };
