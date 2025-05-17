@@ -18,6 +18,8 @@ import UserDashboard from "./pages/user/UserDashboard";
 import Users from "./pages/admin/Users";
 import Categories from "./pages/admin/Categories";
 import Departments from "./pages/admin/Departments";
+import DocumentUpload from "./pages/user/DocumentUpload";
+import DocumentsList from "./pages/user/DocumentsList";
 
 // Route protection wrapper
 const RequireAuth = ({ children, adminOnly = false }) => {
@@ -128,15 +130,13 @@ const App = () => {
               </RequireAuth>
             }
           />
-          <Route
-            path="/files"
-            element={
-              <RequireAuth>
-                <AllFiles />
-              </RequireAuth>
-            }
-          />
+          <Route path="/files" element={<DocumentsList />} />
+<Route path="/upload" element={<DocumentUpload />} />
+
+
         </Route>
+        
+
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/login" replace />} />
