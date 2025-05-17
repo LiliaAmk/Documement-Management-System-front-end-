@@ -97,8 +97,10 @@ const Dashboard = () => {
                 ></div>
               </div>
               <p className="text-xs text-gray-600">
-                {dashboardData.storageUsed || 0} / {dashboardData.storageLimit || 0} MB
-              </p>
+  {((dashboardData.storageUsed || 0) / 1024 / 1024).toFixed(1)} / {((dashboardData.storageLimit || 0) / 1024 / 1024).toFixed(0)} MB
+</p>
+
+
             </div>
           </div>
         </div>
