@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Modal } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Menu,
@@ -10,6 +11,7 @@ import {
   FolderCog,
   Shield,
 } from "lucide-react";
+
 
 // The component gets userType as a prop: "ROLE_ADMIN" or "ROLE_USER"
 const Sidebar = ({ userType }) => {
@@ -42,9 +44,19 @@ const Sidebar = ({ userType }) => {
   const links = userType === "ROLE_ADMIN" ? adminLinks : userLinks;
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
+    Modal.confirm({
+      title: 'Are you sure you want to logout?',
+      content: 'You will be returned to the login page.',
+      okText: 'Logout',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+      }
+      // onCancel: () => {}, // optional
+    });
   };
 
   return (
