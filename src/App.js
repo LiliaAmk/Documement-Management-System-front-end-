@@ -11,7 +11,6 @@ import DashboardLayout from "./layouts/DashboardLayout";
 // Pages
 import AllFiles from "./pages/common/AllFiles";
 import SignIn from "./pages/auth/SignIn";
-import SignUp from "./pages/auth/SignUp";
 import Profile from "./pages/common/Profile";
 import Dashboard from "./pages/admin/Dashboard";
 import UserDashboard from "./pages/user/UserDashboard";
@@ -60,7 +59,6 @@ const App = () => {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<SignIn />} />
 
         {/* Protected Routes */}

@@ -23,9 +23,9 @@ const Sidebar = ({ userType }) => {
 
   // User links (only see these)
   const userLinks = [
-    { name: "Dashboard", path: "/user/dashboard", icon: <User size={20} /> },
+    //{ name: "Dashboard", path: "/user/dashboard", icon: <User size={20} /> },
     { name: "My Files", path: "/files", icon: <File size={20} /> },
-    { name: "Profile", path: "/profile", icon: <UserCircle size={20} /> },
+    //{ name: "Profile", path: "/profile", icon: <UserCircle size={20} /> },
   ];
 
   // Admin links (see everything)
@@ -82,7 +82,7 @@ const Sidebar = ({ userType }) => {
             to={link.path}
             className={`flex items-center space-x-3 p-3 rounded-lg transition-all text-gray-700 ${
               location.pathname === link.path
-                ? "bg-gray-100 text-purple-700"
+                ? "bg-gray-100 text-blue-700"
                 : "hover:bg-gray-100"
             }`}
           >

@@ -1,54 +1,41 @@
 // src/pages/auth/SignIn.js
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import { FcGoogle } from "react-icons/fc";
-import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "../../redux/authSlice"; 
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { loginSuccess } from "../../redux/authSlice";
+import { Form, Input, Button, Card, Typography, Alert } from "antd";
+
+const { Title, Text } = Typography;
 
 export default function SignIn() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onFinish = async (values) => {
     setError("");
-
-    // clear any stale auth info
     localStorage.removeItem("token");
     localStorage.removeItem("userType");
     localStorage.removeItem("userEmail");
 
     try {
-      const response = await axios.post("http://localhost:8080/auth/login", formData);
+      const response = await axios.post("http://localhost:8080/auth/login", values);
       const token = response.data.token;
-
-      // Save token and user info
       localStorage.setItem("token", token);
       const decoded = jwtDecode(token);
       const role = decoded.roles?.[0] || "ROLE_USER";
       localStorage.setItem("userType", role);
       localStorage.setItem("userEmail", decoded.sub);
-
-      // Update Redux
       dispatch(loginSuccess({ token, user: decoded }));
-
       // Redirect
       if (role === "ROLE_ADMIN") {
         navigate("/admin/dashboard");
       } else {
         navigate("/user/dashboard");
       }
-
     } catch (err) {
-      // on failure, clear storage again
       localStorage.removeItem("token");
       localStorage.removeItem("userType");
       localStorage.removeItem("userEmail");
@@ -57,46 +44,41 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-purple-900">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
-        <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">
-          Sign In
-        </h2>
-        <form onSubmit={handleSubmit}>
-          {["email", "password"].map((field) => (
-            <div className="mb-4" key={field}>
-              <label className="block text-gray-600 capitalize">{field}</label>
-              <input
-                type={field === "password" ? "password" : "text"}
-                name={field}
-                placeholder={`Enter your ${field}`}
-                value={formData[field]}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-700 ${
-                  error ? "border-red-500" : ""
-                }`}
-              />
-            </div>
-          ))}
-          {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-          <button className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-900 transition">
-            Sign In
-          </button>
-        </form>
-
-        <div className="text-center my-4 text-gray-500">or</div>
-        <button className="flex items-center justify-center w-full border py-2 rounded-lg hover:bg-gray-100 transition">
-          <FcGoogle className="text-xl mr-2" />
-          Continue with Google
-        </button>
-
-        <p className="text-center text-gray-600 mt-4">
-          Don't have an account?{" "}
-          <a href="/signup" className="text-purple-700">
-            Sign up
-          </a>
-        </p>
-      </div>
+    <div style={{
+      backgroundColor: '#f4f6f9',
+      height: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}>
+      <Card style={{ width: 400 }} bordered={false}>
+        <Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>Sign In</Title>
+        {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16 }} />}
+        <Form name="login" layout="vertical" onFinish={onFinish}>
+          <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Please input your email!' }]}>
+            <Input type="email" placeholder="Enter your email" />
+          </Form.Item>
+          <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please input your password!' }]}>
+            <Input.Password placeholder="Enter your password" />
+          </Form.Item>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              style={{
+                backgroundColor: '#001e39',
+                borderColor: '#001e39'
+              }}
+            >
+              Sign In
+            </Button>
+          </Form.Item>
+        </Form>
+        <div style={{ textAlign: 'center' }}>
+          <Text>Don't have an account? <Link to="signIn">Contact the Admin</Link></Text>
+        </div>
+      </Card>
     </div>
   );
 }

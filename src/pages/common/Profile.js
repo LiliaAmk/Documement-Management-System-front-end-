@@ -1,74 +1,156 @@
+// src/pages/profile/Profile.js
+
 import React from "react";
-import { CameraIcon } from "@heroicons/react/24/solid";
+
+const getUser = () => {
+  // Try Redux first, fallback to localStorage
+  let user = null;
+  try {
+    // If using Redux, replace with: useSelector(state => state.auth.user);
+    user = JSON.parse(localStorage.getItem("loggedInUser"));
+    // OR, if you store only email, decode token etc.
+    if (!user) {
+      user = {
+        firstName: "John",
+        lastName: "Doe",
+        email: localStorage.getItem("userEmail") || "unknown@email.com",
+        role: localStorage.getItem("userType") || "ROLE_USER",
+        phone: "+213 123 456 789",
+        bio: "AI Student",
+        country: "Algeria",
+        city: "Algiers"
+      };
+    }
+  } catch (e) {
+    user = {
+      firstName: "John",
+      lastName: "Doe",
+      email: localStorage.getItem("userEmail") || "unknown@email.com",
+      role: localStorage.getItem("userType") || "ROLE_USER",
+      phone: "+213 123 456 789",
+      bio: "AI Student",
+      country: "Algeria",
+      city: "Algiers"
+    };
+  }
+  return user;
+};
 
 const Profile = () => {
+  const user = getUser();
+
   return (
-    <div className="max-w-4xl mx-auto p-6 sm:p-4">
-      {/* Profile Section */}
-      <div className="bg-white p-6 rounded-2xl shadow-md mb-6">
-        <h2 className="text-2xl font-semibold mb-4">Profile</h2>
-        <div className="flex items-center gap-6 relative">
-          <div className="relative w-20 h-20">
-            <img
-              src="https://via.placeholder.com/100"
-              alt="Profile"
-              className="w-20 h-20 rounded-full border-2 border-gray-300"
-            />
-            <button className="absolute bottom-0 right-0 bg-purple-700 p-1 rounded-full border-2 border-white hover:bg-gray-600">
-              <CameraIcon className="h-5 w-5 text-white" />
-            </button>
+    <div style={{
+      background: "#f4f6f9",
+      minHeight: "100vh",
+      padding: "40px 0",
+      width: "100vw",
+    }}>
+      <div style={{
+        maxWidth: 700,
+        margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: 24,
+      }}>
+        {/* Profile Overview Card */}
+        <div style={{
+          background: "#fff",
+          borderRadius: 20,
+          boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+          padding: 32,
+          display: "flex",
+          alignItems: "center",
+          gap: 24,
+        }}>
+          <div style={{
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: "#ede9fe",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 30,
+            color: "#8b5cf6",
+            fontWeight: 700,
+            border: "4px solid #a78bfa",
+          }}>
+            {user.firstName ? user.firstName[0] : "U"}
           </div>
           <div>
-            <h3 className="text-xl font-semibold">Musharof Chowdhury</h3>
-            <p className="text-gray-500">Team Manager • Arizona, United States</p>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>{user.firstName} {user.lastName}</div>
+            <div style={{ color: "#7c3aed", fontWeight: 500 }}>{user.role === "ROLE_ADMIN" ? "Admin" : "User"}</div>
+            <div style={{ color: "#64748b" }}>{user.city}, {user.country}</div>
           </div>
         </div>
-      </div>
 
-      {/* Personal Information */}
-      <div className="bg-white p-6 rounded-2xl shadow-md mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Personal Information</h2>
-          <button className="text-purple-600 hover:underline">Edit</button>
+        {/* Personal Info */}
+        <div style={{
+          background: "#fff",
+          borderRadius: 20,
+          boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+          padding: 32,
+          marginBottom: 0
+        }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 20
+          }}>
+            <div style={{ fontSize: 20, fontWeight: 600 }}>Personal Information</div>
+            {/* <button style={{ color: "#8b5cf6", fontWeight: 500, background: "none", border: "none" }}>Edit</button> */}
+          </div>
+          <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ color: "#64748b" }}>First Name</div>
+              <div style={{ fontWeight: 500 }}>{user.firstName}</div>
+            </div>
+            <div>
+              <div style={{ color: "#64748b" }}>Last Name</div>
+              <div style={{ fontWeight: 500 }}>{user.lastName}</div>
+            </div>
+            <div>
+              <div style={{ color: "#64748b" }}>Email Address</div>
+              <div style={{ fontWeight: 500 }}>{user.email}</div>
+            </div>
+            <div>
+              <div style={{ color: "#64748b" }}>Phone</div>
+              <div style={{ fontWeight: 500 }}>{user.phone || "-"}</div>
+            </div>
+            <div>
+              <div style={{ color: "#64748b" }}>Bio</div>
+              <div style={{ fontWeight: 700 }}>{user.bio || "-"}</div>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <p className="text-gray-500">First Name</p>
-            <p className="font-medium">Musharof</p>
-          </div>
-          <div>
-            <p className="text-gray-500">Last Name</p>
-            <p className="font-medium">Chowdhury</p>
-          </div>
-          <div>
-            <p className="text-gray-500">Email Address</p>
-            <p className="font-medium">randomuser@pimjo.com</p>
-          </div>
-          <div>
-            <p className="text-gray-500">Phone</p>
-            <p className="font-medium">+09 363 398 46</p>
-          </div>
-          <div className="col-span-1 sm:col-span-2">
-            <p className="text-gray-500">Bio</p>
-            <p className="font-medium">Team Manager</p>
-          </div>
-        </div>
-      </div>
 
-      {/* Address */}
-      <div className="bg-white p-6 rounded-2xl shadow-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Address</h2>
-          <button className="text-purple-600 hover:underline">Edit</button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <p className="text-gray-500">Country</p>
-            <p className="font-medium">United States</p>
+        {/* Address */}
+        <div style={{
+          background: "#fff",
+          borderRadius: 20,
+          boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+          padding: 32,
+        }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 20
+          }}>
+            <div style={{ fontSize: 20, fontWeight: 600 }}>Address</div>
+            {/* <button style={{ color: "#8b5cf6", fontWeight: 500, background: "none", border: "none" }}>Edit</button> */}
           </div>
-          <div>
-            <p className="text-gray-500">City/State</p>
-            <p className="font-medium">Phoenix, Arizona, United States</p>
+          <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ color: "#64748b" }}>Country</div>
+              <div style={{ fontWeight: 500 }}>{user.country}</div>
+            </div>
+            <div>
+              <div style={{ color: "#64748b" }}>City/State</div>
+              <div style={{ fontWeight: 500 }}>{user.city}</div>
+            </div>
           </div>
         </div>
       </div>

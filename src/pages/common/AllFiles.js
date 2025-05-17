@@ -96,7 +96,7 @@ const AllFiles = () => {
       title: "Category",
       dataIndex: "categoryId",
       key: "categoryId",
-      render: (id) => <Tag color="purple">{getCategoryName(id)}</Tag>,
+      render: (id) => <Tag color="blue">{getCategoryName(id)}</Tag>,
     },
     {
       title: "Actions",
