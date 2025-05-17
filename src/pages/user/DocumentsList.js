@@ -37,6 +37,18 @@ const DocumentsList = () => {
     const cat = categories.find(c => c.id === id);
     return cat ? cat.name : id;
   };
+  const handleDelete = (id) => {
+  // Show confirmation dialog before delete
+  if (window.confirm("Are you sure you want to delete this document?")) {
+    api.delete(`/documents/${id}`)
+      .then(() => {
+        message.success("Document deleted successfully!");
+        setDocuments((docs) => docs.filter((doc) => doc.id !== id));
+      })
+      .catch(() => message.error("Failed to delete document"));
+  }
+};
+
 
   const columns = [
     { title: "Title", dataIndex: "title", key: "title" },
@@ -50,17 +62,20 @@ const DocumentsList = () => {
       render: (id) => <Tag>{getCategoryName(id)}</Tag>,
     },
     {
-      title: "Actions",
-      key: "actions",
-      render: (_, record) => (
-        <Button
-          type="link"
-          onClick={() => window.open(record.downloadUrl, "_blank")}
-        >
-          Download
-        </Button>
-      ),
-    },
+  title: "Actions",
+  key: "actions",
+  render: (_, record) => (
+    <>
+      <Button type="link" onClick={() => window.open(record.downloadUrl, "_blank")}>
+        Download
+      </Button>
+      <Button type="link" danger onClick={() => handleDelete(record.id)}>
+        Delete
+      </Button>
+    </>
+  ),
+}
+
   ];
 
   return (

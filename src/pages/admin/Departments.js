@@ -40,22 +40,37 @@ const Departments = () => {
     form.resetFields();
     setIsModalVisible(true);
   };
+  const openEditModal = (department) => {
+  setEditingDepartment(department);
+  form.setFieldsValue({ name: department.name });
+  setIsModalVisible(true);
+};
+
 
   const handleModalOk = async () => {
-    try {
-      const values = await form.validateFields();
-      if (editingDepartment) {
-        message.info('Editing not implemented yet.');
-      } else {
-        const { data } = await api.post('/departments', { name: values.name });
-        setDepartments([...departments, data]);
-        message.success('Department created');
-      }
-      setIsModalVisible(false);
-    } catch (err) {
-      message.error('Failed to save department');
+  try {
+    const values = await form.validateFields();
+    if (editingDepartment) {
+      // EDIT mode
+      const { data } = await api.put(`/departments/${editingDepartment.id}`, { name: values.name });
+      setDepartments(departments.map(dep =>
+        dep.id === editingDepartment.id ? data : dep
+      ));
+      message.success('Department updated');
+    } else {
+      // CREATE mode
+      const { data } = await api.post('/departments', { name: values.name });
+      setDepartments([...departments, data]);
+      message.success('Department created');
     }
-  };
+    setIsModalVisible(false);
+    setEditingDepartment(null);
+    form.resetFields();
+  } catch (err) {
+    message.error('Failed to save department');
+  }
+};
+
 
   const handleModalCancel = () => setIsModalVisible(false);
 
@@ -94,14 +109,28 @@ const Departments = () => {
       key: 'name',
     },
     {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <Button danger type="link" onClick={() => showDeleteConfirm(record.id)}>
-          Delete
-        </Button>
-      ),
-    },
+  title: 'Actions',
+  key: 'actions',
+  render: (_, record) => (
+    <>
+      <Button
+        type="link"
+        onClick={() => openEditModal(record)}
+        style={{ marginRight: 8 }}
+      >
+        Edit
+      </Button>
+      <Button
+        danger
+        type="link"
+        onClick={() => showDeleteConfirm(record.id)}
+      >
+        Delete
+      </Button>
+    </>
+  ),
+},
+
   ];
 
   return (
