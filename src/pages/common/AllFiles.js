@@ -125,9 +125,17 @@ const AllFiles = () => {
   return (
     <div>
       <div style={{
-        display: "flex", justifyContent: "space-between", alignItems: "center"
+        display: "flex", justifyContent: "space-between", alignItems: "center",marginBottom: 24
       }}>
-        <Title level={3}>All Documents (Admin)</Title>
+        <Title level={3} style={{ margin: 0 }}>All Documents (Admin)</Title>
+        <div style={{ display: "flex", gap: 12 }}></div>
+        <Button
+        type="primary"
+        style={{ marginRight: 12 }}
+        onClick={() => navigate("/upload")}
+      >
+        Add File
+      </Button>
         <Input
           placeholder="Search by title, translation, or email..."
           prefix={<SearchOutlined />}
