@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../api/axios';
 
+
 import {
   Layout, Button, Input, Table, Modal, Form, Typography, message, Select,
 } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -66,7 +68,7 @@ export default function Users() {
         email: values.email,
         phonenum: values.phonenum,
         role: values.role,
-        department: { id: values.departmentId },
+        departments: values.departments.map(id => ({ id })),
         password: values.password,
       };
 
@@ -89,7 +91,7 @@ export default function Users() {
     setEditingUser(record);
     form.setFieldsValue({
       ...record,
-      departmentId: record.department?.id,
+      departments: record.departments?.map(dep => dep.id) || [],
     });
     setOpenModal(true);
   };
@@ -110,10 +112,14 @@ export default function Users() {
     { title: 'Phone', dataIndex: 'phonenum', key: 'phonenum' },
     { title: 'Role', dataIndex: 'role', key: 'role' },
     {
-      title: 'Department',
-      key: 'department',
-      render: (_, r) => r.department?.name || '—',
-    },
+  title: 'Departments',
+  key: 'departments',
+  render: (_, r) =>
+    r.departments && r.departments.length
+      ? r.departments.map(dep => dep.name).join(', ')
+      : '—',
+},
+
     {
       title: 'Actions',
       key: 'actions',
@@ -176,13 +182,21 @@ export default function Users() {
               <Option value="ROLE_USER">User</Option>
             </Select>
           </Form.Item>
-          <Form.Item name="departmentId" label="Department" rules={[{ required: true }]}>  
-            <Select placeholder="Select a department">
-              {departments.map(dept => (
-                <Option key={dept.id} value={dept.id}>{dept.name}</Option>
-              ))}
-            </Select>
-          </Form.Item>
+         <Form.Item
+  name="departments"
+  label="Departments"
+  rules={[{ required: true, message: 'Select at least one department' }]}
+>
+  <Select
+    mode="multiple"
+    placeholder="Select departments"
+  >
+    {departments.map(dept => (
+      <Option key={dept.id} value={dept.id}>{dept.name}</Option>
+    ))}
+  </Select>
+</Form.Item>
+
         </Form>
       </Modal>
     </Layout>
