@@ -4,14 +4,14 @@ import {
   Menu,
   User,
   File,
-  Settings,
-  Shield,
   LogOut,
   UserCircle,
   Folder,
   FolderCog,
+  Shield,
 } from "lucide-react";
 
+// The component gets userType as a prop: "ROLE_ADMIN" or "ROLE_USER"
 const Sidebar = ({ userType }) => {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
@@ -21,12 +21,14 @@ const Sidebar = ({ userType }) => {
     setIsOpen(!isOpen);
   };
 
+  // User links (only see these)
   const userLinks = [
     { name: "Dashboard", path: "/user/dashboard", icon: <User size={20} /> },
     { name: "My Files", path: "/files", icon: <File size={20} /> },
     { name: "Profile", path: "/profile", icon: <UserCircle size={20} /> },
   ];
 
+  // Admin links (see everything)
   const adminLinks = [
     { name: "Dashboard", path: "/admin/dashboard", icon: <User size={20} /> },
     { name: "User Management", path: "/users", icon: <Shield size={20} /> },
@@ -36,14 +38,12 @@ const Sidebar = ({ userType }) => {
     { name: "Profile", path: "/profile", icon: <UserCircle size={20} /> },
   ];
 
+  // Determine which links to display
   const links = userType === "ROLE_ADMIN" ? adminLinks : userLinks;
 
   const handleLogout = () => {
-    // Clear user session data
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
-    // Redirect to login
     navigate("/login");
   };
 
@@ -67,7 +67,11 @@ const Sidebar = ({ userType }) => {
         <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-700 font-bold text-lg">
           U
         </div>
-        {isOpen && <span className="text-lg font-semibold text-gray-800">Username</span>}
+        {isOpen && (
+          <span className="text-lg font-semibold text-gray-800">
+            {userType === "ROLE_ADMIN" ? "Admin" : "User"}
+          </span>
+        )}
       </div>
 
       {/* Navigation Links */}
